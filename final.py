@@ -16,20 +16,24 @@ import urllib
 import json                 
 from pprint import pprint 
 
-flag=False
 
-st.write("Enter Username and password:")
-username=st.text_area("Please Enter Username: ",height=1)
-password=st.text_area("Please Enter Password: ",height=1)
+st.sidebar.write("Enter Username and password:")
+username=st.sidebar.text_area("Please Enter Username: ",height=1)
+password=st.sidebar.text_area("Please Enter Password: ",height=1)
 
 
-if st.button('Login'):
+@st.cache(persist=True,suppress_st_warning=True)
+def login(username,password):
 
-    if username=="AdminRT" and password=="AdminRT123":
-        flag=True
-    else:
-        flag=False
-        st.write("Wrong Credentials")
+        if username=="AdminRT" and password=="AdminRT123":
+            return True
+            
+        else:
+            st.sidebar.write("Wrong Credentials")
+            return False
+            
+
+flag=login(username,password)
 
 
 if flag==True:
