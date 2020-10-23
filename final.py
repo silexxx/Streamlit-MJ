@@ -17,7 +17,7 @@ import json
 from pprint import pprint 
 
 
-st.sidebar.write("Enter Username and password:")
+st.sidebar.title("Enter Username and password:")
 username=st.sidebar.text_area("Please Enter Username: ",height=1)
 password=st.sidebar.text_area("Please Enter Password: ",height=1)
 
