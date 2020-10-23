@@ -29,7 +29,7 @@ def login(username,password):
             return True
             
         else:
-            st.sidebar.write("Wrong Credentials")
+            st.write("Wrong Credentials")
             return False
             
 
