@@ -8,7 +8,6 @@ from PIL import Image
 import os
 import base64
 import requests 
-import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -28,7 +27,7 @@ Question_chosen_from_suggestion=[]
 Date=[]
 Time=[]
 Download_link=[]
-Collaborator_Cohort=[]	
+Collaborator_Cohort=[]  
 
 
 for j in range(266,269):
@@ -64,7 +63,7 @@ for j in range(266,269):
         Download_link.append(c[i]["media_url"])
 
         try:
-            Collaborator_Cohort.append(c[i]["get_event_collaborator"]["meta_data"]["cohert"])
+            Collaborator_Cohort.append(c[i]["get_event_collaborator"]["meta_data"]["cohort"])
         except:
             Collaborator_Cohort.append("None")
 
@@ -106,81 +105,73 @@ df["Collaborator_Phone"]= df["Collaborator_Phone"].replace("", "None")
 
 dff=df.copy() 
 # st.dataframe(df)
+#----------------------------------------------------------------------------------------------------------
+def get_table_download_link(df):
+    """Generates a link allowing the data in a given panda dataframe to be downloaded
+    in:  dataframe
+    out: href string
+    """
+    csv = df.to_csv(index=False)
+    b64 = base64.b64encode(
+        csv.encode()
+    ).decode()  # some strings <-> bytes conversions necessary here
+    return f'<a href="data:file/csv;base64,{b64}" download="data.csv" style="float: right;">Download csv file</a>'
+
+st.markdown(get_table_download_link(df), unsafe_allow_html=True)
+
+#----------------------------------------------------------------------------------------------------------
 
 
-fig0 = make_subplots(
-        rows=1, cols=1,
-        shared_xaxes=True,
-        vertical_spacing=0.03,
-        specs=[[{"type": "table"}]]
-    )
 
-fig0.add_trace(
+
+
+
+
+# filters = st.sidebar.checkbox("Filter")
+# if filters:
+st.sidebar.title("Filter Columns :")
+
+
+options = pd.Series(["All"]).append(df["Event_name"], ignore_index=True).unique()
+choice = st.sidebar.selectbox("Select {}.".format("Event_name."), options)
+
+if choice != "All":
+    dff = dff[dff["Event_name"] == choice]
+
+
+
+fig = make_subplots(
+    rows=1, cols=1,
+    shared_xaxes=True,
+    vertical_spacing=0.03,
+    specs=[[{"type": "table"}]]
+)
+
+fig.add_trace(
     go.Table(
         header=dict(
-            values=df.columns,
+            values=dff.columns,
             font=dict(size=10),
             align="left"
         ),
         cells=dict(
-            values=[df[k].tolist() for k in df.columns[0:]],
+            values=[dff[k].tolist() for k in dff.columns[0:]],
             align = "left")
     ),
     row=1, col=1
 )
-fig0.update_layout(
+fig.update_layout(
     height=1000,
     width=1000,
     showlegend=False,
-    title_text="Original",
+    title_text="Filtered",
 )
 
-st.plotly_chart(fig0)
-
-
-filters = st.sidebar.checkbox("Filter")
-if filters:
-    st.sidebar.title("Filter Columns :")
-
-    for column in dff.columns:
-        options = pd.Series(["All"]).append(df[column], ignore_index=True).unique()
-        choice = st.sidebar.selectbox("Select {}.".format(column), options)
-
-        if choice != "All":
-            dff = dff[dff[column] == choice].drop(columns=column)
-    
-
-
-    fig = make_subplots(
-        rows=1, cols=1,
-        shared_xaxes=True,
-        vertical_spacing=0.03,
-        specs=[[{"type": "table"}]]
-    )
-
-    fig.add_trace(
-        go.Table(
-            header=dict(
-                values=dff.columns,
-                font=dict(size=10),
-                align="left"
-            ),
-            cells=dict(
-                values=[dff[k].tolist() for k in dff.columns[0:]],
-                align = "left")
-        ),
-        row=1, col=1
-    )
-    fig.update_layout(
-        height=1000,
-        width=1000,
-        showlegend=False,
-        title_text="Filtered",
-    )
-
-    st.plotly_chart(fig)
+st.plotly_chart(fig)
 
 # st.write(dff["Download_link"].values)
+
+#----------------------------------------------------------------------------------------------------------
 
 def download_links(link, file_label='File'):
 
@@ -197,15 +188,4 @@ if st.button('Download Images'):
         st.markdown(download_links(image_url, 'Picture'), unsafe_allow_html=True)
 
 
-def get_table_download_link(df):
-    """Generates a link allowing the data in a given panda dataframe to be downloaded
-    in:  dataframe
-    out: href string
-    """
-    csv = df.to_csv(index=False)
-    b64 = base64.b64encode(
-        csv.encode()
-    ).decode()  # some strings <-> bytes conversions necessary here
-    return f'<a href="data:file/csv;base64,{b64}" download="data.csv">Download csv file</a>'
-
-st.markdown(get_table_download_link(df), unsafe_allow_html=True)
+#----------------------------------------------------------------------------------------------------------
