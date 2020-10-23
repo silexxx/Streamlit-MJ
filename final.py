@@ -36,7 +36,7 @@ def login(username,password):
 
 
 if st.sidebar.checkbox("Login"):
-    if username=="AdminRT" and password=="AdminRT123":
+    if username=="1" and password=="1":
         Collab_Media_id=[]
         Event_id=[]
         Event_name=[]
@@ -188,6 +188,105 @@ if st.sidebar.checkbox("Login"):
         )
 
         st.plotly_chart(fig)
+
+
+        Collaborator_Name1=[]
+        Collaborator_Phone1=[]
+        Date1=[]
+        Collaborator_Cohort1=[]  
+
+
+        for j in range(266,267):
+            url = f"https://api.miljulapp.com/api/v1/api/v1/collab/collabmedia?collab_event={j}"
+            response = urllib.request.urlopen(url)
+            text = response.read()
+            json_data = json.loads(text)
+            api_length=json_data["response"]["response"]["count"]
+            c=json_data["response"]["response"]["results"]
+            for i in range(0,len(c)):
+                Collaborator_Name1.append(c[i]["get_event_collaborator"]["name"])
+
+                Collaborator_Phone1.append(c[i]["get_event_collaborator"]["mobile"])
+
+                Date1.append(c[i]["created"][0:16])
+
+                try:
+                    Collaborator_Cohort1.append(c[i]["get_event_collaborator"]["meta_data"]["cohort"])
+                except:
+                    Collaborator_Cohort1.append("None")
+
+
+
+
+
+        data = {
+                "Collaborator_Name":Collaborator_Name1,
+                "Collaborator_Phone":Collaborator_Phone1,
+                "Date":Date1,
+                "Collaborator_Cohort":Collaborator_Cohort1
+        }
+        column=[
+                "Collaborator_Name",
+                "Collaborator_Phone",
+                "Date",
+                "Collaborator_Cohort"
+                ]
+
+
+        data = pd.DataFrame (data, columns = column)
+
+        data=data.fillna("None")
+        data["Collaborator_Phone"]= data["Collaborator_Phone"].replace("", "None") 
+
+        data=data.sort_values(by='Date')
+        dff1=data.copy()
+
+
+
+
+
+
+        # filters = st.sidebar.checkbox("Filter")
+        # if filters:
+        # st.sidebar.title("Filter Columns :")
+
+
+        # options = pd.Series(["All"]).append(df["Event_name"], ignore_index=True).unique()
+        # choice = st.sidebar.selectbox("Select {}.".format("Event_name."), options)
+
+        # if choice != "All":
+        #     dff = dff[dff["Event_name"] == choice]
+
+
+
+        fig1 = make_subplots(
+            rows=1, cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.03,
+            specs=[[{"type": "table"}]]
+        )
+
+        fig1.add_trace(
+            go.Table(
+                header=dict(
+                    values=dff1.columns,
+                    font=dict(size=10),
+                    align="left"
+                ),
+                cells=dict(
+                    values=[dff1[k].tolist() for k in dff1.columns[0:]],
+                    align = "left")
+            ),
+            row=1, col=1
+        )
+        fig1.update_layout(
+            height=1000,
+            width=1000,
+            showlegend=False,
+            title_text="Event Collaborators Data",
+        )
+
+        st.plotly_chart(fig1)
 
         # st.write(dff["Download_link"].values)
 
