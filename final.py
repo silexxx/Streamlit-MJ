@@ -51,44 +51,52 @@ if st.sidebar.checkbox("Login"):
 
 
         for j in range(266,269):
-            url = f"https://api.miljulapp.com/api/v1/api/v1/collab/collabmedia?collab_event={j}"
-            response = urllib.request.urlopen(url)
-            text = response.read()
-            json_data = json.loads(text)
-            api_length=json_data["response"]["response"]["count"]
-            c=json_data["response"]["response"]["results"]
-            for i in range(0,len(c)):
-                Collab_Media_id.append(c[i]["id"])
-                Event_id.append(c[i]["collab_event"])
-                Event_name.append(c[i]["get_collab_event"]["name"])
-                Collaborator_Name.append(c[i]["get_event_collaborator"]["name"])
-                Collaborator_Phone.append(c[i]["get_event_collaborator"]["mobile"])
+            counter1=1
+            temp1=0
+            while(temp1 != None):
+                url = f"https://api.miljulapp.com/api/v1/api/v1/collab/collabmedia?collab_event={j}&page={counter1}"
+                response = urllib.request.urlopen(url)
+                text = response.read()
+                json_data = json.loads(text)
 
-                try:
-                    temp=c[i]["media_url"]
-                    print(temp)
-                    z=temp[-21:]
-                    Media_file.append(z)
-                except:
-                    Media_file.append("None")
+                temp1=json_data["response"]["response"]["next"]
+                print(temp1,j)
+                counter1+=1
 
-                try:
-                    Question_chosen_from_suggestion.append(c[i]["meta_data"]["questionSelected"])
-                except:
-                    Question_chosen_from_suggestion.append("None")
+                c=json_data["response"]["response"]["results"]
+                for i in range(0,len(c)):
+                    Collab_Media_id.append(c[i]["id"])
+                    Event_id.append(c[i]["collab_event"])
+                    Event_name.append(c[i]["get_collab_event"]["name"])
+                    Collaborator_Name.append(c[i]["get_event_collaborator"]["name"])
+                    Collaborator_Phone.append(c[i]["get_event_collaborator"]["mobile"])
 
 
+                    try:
+                        temp=c[i]["media_url"]
+                        print(temp)
+                        z=temp[-21:]
+                        Media_file.append(z)
+                    except:
+                        Media_file.append("None")
+
+                    try:
+                        Question_chosen_from_suggestion.append(c[i]["meta_data"]["questionSelected"])
+                    except:
+                        Question_chosen_from_suggestion.append("None")
 
 
-                Date.append(c[i]["created"][0:10])
-                Time.append(c[i]["created"][11:16])
 
-                Download_link.append(c[i]["media_url"])
 
-                try:
-                    Collaborator_Cohort.append(c[i]["get_event_collaborator"]["meta_data"]["cohort"])
-                except:
-                    Collaborator_Cohort.append("None")
+                    Date.append(c[i]["created"][0:10])
+                    Time.append(c[i]["created"][11:16])
+
+                    Download_link.append(c[i]["media_url"])
+
+                    try:
+                        Collaborator_Cohort.append(c[i]["get_event_collaborator"]["meta_data"]["cohort"])
+                    except:
+                        Collaborator_Cohort.append("None")
 
 
 
